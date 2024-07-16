@@ -324,13 +324,16 @@ parse_reg_operand_out (InlineAsmContext inline_asm_ctx)
     {
       auto reg = parse_reg (inline_asm_ctx);
 
-      auto expr = parse_format_string (inline_asm_ctx);
+      // Uses parser's parse_literal_expr until we can use parser's parse_expr
+      std::unique_ptr<AST::Expr> expr = parser.parse_literal_expr ();
+
+      /*auto expr_ptr = std::make_unique<AST::Expr>(AST::LiteralExpr(Literal))*/
 
       // TODO: When we've succesfully parse an expr, remember to clone_expr()
       // instead of nullptr
-      //      struct AST::InlineAsmOperand::Out out (reg, false, nullptr);
-      //      reg_operand.set_out (out);
-      //      inline_asm_ctx.inline_asm.operands.push_back (reg_operand);
+      struct AST::InlineAsmOperand::Out out (reg, false, std::move (expr));
+      reg_operand.set_out (out);
+      inline_asm_ctx.inline_asm.operands.push_back (reg_operand);
 
       return inline_asm_ctx;
     }
